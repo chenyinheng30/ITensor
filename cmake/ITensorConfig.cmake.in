@@ -1,0 +1,148 @@
+# ===========================================================================
+#  ITensorConfig.cmake.in  ->  <...>/lib/cmake/ITensor/ITensorConfig.cmake
+#
+#  由 ITensor 自己的"打包"工程 (ITensor/CMakeLists.txt) 生成, 请勿手改。
+#
+#  用法:
+#      find_package(ITensor REQUIRED)            # 也可以要求版本, 如 ITensor 3.1
+#      target_link_libraries(myapp PRIVATE ITensor::itensor)
+#
+#  target ITensor::itensor 已经完整带上:
+#      * ITensor 头文件目录 (itensor/all.h 所在目录)
+#      * 静态库 libitensor.a / libitensor-g.a   (按 CMAKE_BUILD_TYPE 自动选择)
+#      * BLAS/LAPACK 的 -I / -D / -L / -l / -fopenmp 以及 rpath
+#      * C++17 要求
+#  下游 **不需要** 再重复 ITensor 的任何编译或链接配置。
+#
+#  本文件在两种布局下内容相同:
+#      A) <ITensor 源码树>/lib/cmake/ITensor/   -- 无需 install
+#      B) <prefix>/lib/cmake/ITensor/           -- cmake --install 之后
+#  路径计算全部放在 ITensorTargets.cmake 里 (相对本文件位置上溯 3 级)。
+# ===========================================================================
+
+# --- 版本与来源信息 --------------------------------------------------------
+set(ITensor_VERSION      "@ITENSOR_PACKAGE_VERSION@")
+set(ITensor_GIT_REVISION "@ITENSOR_GIT_REVISION@")
+set(ITensor_PLATFORM     "@ITENSOR_PLATFORM@")
+
+# --- BLAS/LAPACK 依赖 ------------------------------------------------------
+# 这些值由 ITensor/CMakeLists.txt 在打包时从 ITensor/options.mk 解析并固化,
+# options.mk 是 ITensor 构建配置的唯一真源。下游只看到结果, 看不到过程。
+set(ITensor_BLAS_INCLUDE_DIRS        "@ITENSOR_BLAS_INCLUDE_DIRS@")
+set(ITensor_BLAS_LINK_DIRS           "@ITENSOR_BLAS_LINK_DIRS@")
+set(ITensor_BLAS_LIBS                "@ITENSOR_BLAS_LIBS@")
+set(ITensor_BLAS_COMPILE_DEFINITIONS "@ITENSOR_BLAS_COMPILE_DEFINITIONS@")
+set(ITensor_BLAS_COMPILE_OPTIONS     "@ITENSOR_BLAS_COMPILE_OPTIONS@")
+set(ITensor_BLAS_LINK_OPTIONS        "@ITENSOR_BLAS_LINK_OPTIONS@")
+
+# --- imported target ------------------------------------------------------
+# (_ITENSOR_PREFIX / _ITENSOR_INCLUDE_DIR / _ITENSOR_LIB_DIR 在这里被定义)
+include("${CMAKE_CURRENT_LIST_DIR}/ITensorTargets.cmake")
+
+# --- 把 BLAS/LAPACK 挂到 target 上 ----------------------------------------
+# 加互斥保护: 同一个构建里可能有多个子目录 find_package(ITensor), 属性只应追加一次。
+get_property(_ITENSOR_CONFIGURED GLOBAL PROPERTY ITENSOR_CONFIG_APPLIED)
+if(NOT _ITENSOR_CONFIGURED)
+  set_property(GLOBAL PROPERTY ITENSOR_CONFIG_APPLIED TRUE)
+
+  if(ITensor_BLAS_INCLUDE_DIRS)
+    set_property(TARGET ITensor::itensor APPEND PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES ${ITensor_BLAS_INCLUDE_DIRS})
+  endif()
+
+  if(ITensor_BLAS_LINK_DIRS)
+    set_property(TARGET ITensor::itensor APPEND PROPERTY
+      INTERFACE_LINK_DIRECTORIES ${ITensor_BLAS_LINK_DIRS})
+    # 把库目录写进 rpath, 运行时不必再设 LD_LIBRARY_PATH
+    foreach(_ITENSOR_D IN LISTS ITensor_BLAS_LINK_DIRS)
+      set_property(TARGET ITensor::itensor APPEND PROPERTY
+        INTERFACE_LINK_OPTIONS "-Wl,-rpath,${_ITENSOR_D}")
+    endforeach()
+  endif()
+
+  if(ITensor_BLAS_LIBS)
+    set_property(TARGET ITensor::itensor APPEND PROPERTY
+      INTERFACE_LINK_LIBRARIES ${ITensor_BLAS_LIBS})
+  endif()
+
+  if(ITensor_BLAS_COMPILE_DEFINITIONS)
+    set_property(TARGET ITensor::itensor APPEND PROPERTY
+      INTERFACE_COMPILE_DEFINITIONS ${ITensor_BLAS_COMPILE_DEFINITIONS})
+  endif()
+
+  if(ITensor_BLAS_COMPILE_OPTIONS)
+    set_property(TARGET ITensor::itensor APPEND PROPERTY
+      INTERFACE_COMPILE_OPTIONS ${ITensor_BLAS_COMPILE_OPTIONS})
+  endif()
+
+  if(ITensor_BLAS_LINK_OPTIONS)
+    set_property(TARGET ITensor::itensor APPEND PROPERTY
+      INTERFACE_LINK_OPTIONS ${ITensor_BLAS_LINK_OPTIONS})
+  endif()
+endif()
+
+# --- 给非 CMake 用户准备的普通变量 ----------------------------------------
+set(ITensor_INCLUDE_DIRS "${_ITENSOR_INCLUDE_DIR};${ITensor_BLAS_INCLUDE_DIRS}")
+set(ITensor_LIBRARY_DIRS "${_ITENSOR_LIB_DIR};${ITensor_BLAS_LINK_DIRS}")
+set(ITensor_LIBRARIES    "ITensor::itensor" "${ITensor_BLAS_LIBS}")
+
+# --- 产物新鲜度检查 (只有"源码树导出"这一种布局能做) ----------------------
+# ITensor 的 Makefile 没有头文件依赖追踪 (不生成 .d 文件), 改过 config.h 或宏
+# 之后必须 `make clean` 再 make。这里顺手对比一下时间戳, 只提醒, 不阻断配置。
+# 想关掉: -DITENSOR_SKIP_FRESHNESS_CHECK=ON
+if(NOT ITENSOR_SKIP_FRESHNESS_CHECK AND EXISTS "${_ITENSOR_PREFIX}/itensor/all.h")
+
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND
+     EXISTS "${_ITENSOR_LIB_DIR}/libitensor-g.a")
+    set(_ITENSOR_CHECKED_LIB "${_ITENSOR_LIB_DIR}/libitensor-g.a")
+  else()
+    set(_ITENSOR_CHECKED_LIB "${_ITENSOR_LIB_DIR}/libitensor.a")
+  endif()
+
+  if(EXISTS "${_ITENSOR_CHECKED_LIB}")
+    file(TIMESTAMP "${_ITENSOR_CHECKED_LIB}" _ITENSOR_LIB_TIME "%Y%m%d%H%M%S")
+    file(GLOB_RECURSE _ITENSOR_SOURCES
+         "${_ITENSOR_PREFIX}/itensor/*.h"
+         "${_ITENSOR_PREFIX}/itensor/*.hpp"
+         "${_ITENSOR_PREFIX}/itensor/*.cc"
+         "${_ITENSOR_PREFIX}/options.mk")
+
+    # 这几个文件不能作为"库是否过期"的判据, 它们每次 make 都会被重写:
+    #   * all.h / all_basic.h / all_mps.h
+    #       -- itensor/Makefile 的 `build` 和 `debug` 都依赖 touch_all_headers
+    #          目标, 会无条件 `touch` 这三个文件 (它们内容其实没变)。
+    #       -- 比较它们必然误报, 因为 make 的顺序是
+    #              configure -> 编库 -> touch_all_headers
+    #          库永远比它们旧。
+    #   * config.h
+    #       -- 由 `configure` 目标每次 make 时重新生成, 同样无参考价值。
+    # 剪掉之后剩下的才是真正决定库内容的源码文件。
+    set(_ITENSOR_IGNORED
+        "${_ITENSOR_PREFIX}/itensor/config.h"
+        "${_ITENSOR_PREFIX}/itensor/all.h"
+        "${_ITENSOR_PREFIX}/itensor/all_basic.h"
+        "${_ITENSOR_PREFIX}/itensor/all_mps.h")
+
+    foreach(_ITENSOR_SRC IN LISTS _ITENSOR_SOURCES)
+      if(_ITENSOR_SRC IN_LIST _ITENSOR_IGNORED)
+        continue()
+      endif()
+      file(TIMESTAMP "${_ITENSOR_SRC}" _ITENSOR_SRC_TIME "%Y%m%d%H%M%S")
+      if(_ITENSOR_SRC_TIME STRGREATER _ITENSOR_LIB_TIME)
+        message(WARNING
+          "ITensor: ${_ITENSOR_CHECKED_LIB} 可能已过期 (下列文件比它新):\n"
+          "    ${_ITENSOR_SRC}\n"
+          "    -> 请在 ${_ITENSOR_PREFIX} 下重新 make, 然后刷新 CMake package:\n"
+          "         cmake -S ${_ITENSOR_PREFIX} -B ${_ITENSOR_PREFIX}/build-cmake")
+        break()
+      endif()
+    endforeach()
+    unset(_ITENSOR_LIB_TIME)
+    unset(_ITENSOR_SOURCES)
+    unset(_ITENSOR_SRC_TIME)
+    unset(_ITENSOR_IGNORED)
+  endif()
+  unset(_ITENSOR_CHECKED_LIB)
+endif()
+
+set(ITensor_FOUND TRUE)

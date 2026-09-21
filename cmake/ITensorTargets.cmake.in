@@ -1,0 +1,113 @@
+# ===========================================================================
+#  ITensorTargets.cmake.in  ->  <...>/lib/cmake/ITensor/ITensorTargets.cmake
+#
+#  定义 imported target  ITensor::itensor 。
+#
+#  本文件是**静态**的 (由 ITensor/CMakeLists.txt 原样拷贝, 不做变量替换),
+#  因此同一份内容同时服务于两种布局:
+#
+#    A) 源码树导出:  <ITensor>/lib/cmake/ITensor/ITensorTargets.cmake
+#                   前缀 = <ITensor>,  头文件 = <ITensor>/,       库 = <ITensor>/lib/
+#    B) install 之后: <prefix>/lib/cmake/ITensor/ITensorTargets.cmake
+#                   前缀 = <prefix>,   头文件 = <prefix>/include, 库 = <prefix>/lib/
+#
+#  两者都靠"从本文件所在目录上溯 3 级"得到前缀, 然后自动识别
+#  头文件目录和库目录, 所以不需要为两种布局生成两份文件。
+#
+#  为什么不直接用 install(EXPORT):
+#      CMake 的 export 机制只能导出由本工程 add_library 出来的 target,
+#      而 ITensor 的静态库是它自带 Makefile 预先编好的**产物**(IMPORTED target
+#      不可被 install(EXPORT) 导出)。因此这里按 CMake 官方 export 文件的布局
+#      手工重建, 效果等价。
+# ===========================================================================
+
+if(TARGET ITensor::itensor)
+  return()
+endif()
+
+# 本文件位于 <前缀>/<libdir>/cmake/ITensor/ , 上溯 3 级即得前缀
+get_filename_component(_ITENSOR_PREFIX "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
+if(_ITENSOR_PREFIX STREQUAL "/")
+  set(_ITENSOR_PREFIX "")
+endif()
+
+# --- 头文件目录: 兼容 install 的 include/ 与源码树根部 ----------------------
+set(_ITENSOR_INCLUDE_DIR "")
+foreach(_ITENSOR_CAND
+        "${_ITENSOR_PREFIX}/include/itensor/all.h"
+        "${_ITENSOR_PREFIX}/itensor/all.h")
+  if(EXISTS "${_ITENSOR_CAND}")
+    get_filename_component(_ITENSOR_INCLUDE_DIR "${_ITENSOR_CAND}" DIRECTORY)
+    get_filename_component(_ITENSOR_INCLUDE_DIR "${_ITENSOR_INCLUDE_DIR}" DIRECTORY)
+    break()
+  endif()
+endforeach()
+
+# --- 库目录: 兼容 lib/ lib64/ lib32/ ---------------------------------------
+set(_ITENSOR_LIB_DIR "")
+foreach(_ITENSOR_CAND lib lib64 lib32)
+  if(EXISTS "${_ITENSOR_PREFIX}/${_ITENSOR_CAND}/libitensor.a"
+     OR EXISTS "${_ITENSOR_PREFIX}/${_ITENSOR_CAND}/libitensor-g.a")
+    set(_ITENSOR_LIB_DIR "${_ITENSOR_PREFIX}/${_ITENSOR_CAND}")
+    break()
+  endif()
+endforeach()
+
+if(NOT _ITENSOR_INCLUDE_DIR)
+  message(FATAL_ERROR
+    "ITensor: 在 ${_ITENSOR_PREFIX} 下找不到 itensor/all.h。\n"
+    "         既不在 ${_ITENSOR_PREFIX}/include/itensor/, 也不在 ${_ITENSOR_PREFIX}/itensor/。\n"
+    "         这个 CMake package 看起来不完整 (可能被移动过)。")
+endif()
+if(NOT _ITENSOR_LIB_DIR)
+  message(FATAL_ERROR
+    "ITensor: 在 ${_ITENSOR_PREFIX}/{lib,lib64,lib32} 下找不到 libitensor.a / libitensor-g.a。\n"
+    "         ITensor 必须先用它自带的 Makefile 编好:\n"
+    "             cd ${_ITENSOR_PREFIX} && make")
+endif()
+
+# --- imported target -------------------------------------------------------
+add_library(ITensor::itensor STATIC IMPORTED)
+
+set_target_properties(ITensor::itensor PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${_ITENSOR_INCLUDE_DIR}"
+  INTERFACE_COMPILE_FEATURES "cxx_std_17")
+
+set(_ITENSOR_CONFIGS "")
+foreach(_ITENSOR_CFG IN ITEMS RELEASE DEBUG)
+  if(_ITENSOR_CFG STREQUAL "RELEASE")
+    set(_ITENSOR_LIB "${_ITENSOR_LIB_DIR}/libitensor.a")
+  else()
+    set(_ITENSOR_LIB "${_ITENSOR_LIB_DIR}/libitensor-g.a")
+  endif()
+  if(EXISTS "${_ITENSOR_LIB}")
+    set_property(TARGET ITensor::itensor APPEND PROPERTY
+      IMPORTED_CONFIGURATIONS "${_ITENSOR_CFG}")
+    set_property(TARGET ITensor::itensor PROPERTY
+      "IMPORTED_LOCATION_${_ITENSOR_CFG}" "${_ITENSOR_LIB}")
+    list(APPEND _ITENSOR_CONFIGS "${_ITENSOR_CFG}")
+  endif()
+endforeach()
+
+list(LENGTH _ITENSOR_CONFIGS _ITENSOR_NCONFIG)
+if(_ITENSOR_NCONFIG EQUAL 1)
+  # 只有一种配置时直接给 IMPORTED_LOCATION, 这样任何 CMAKE_BUILD_TYPE
+  # (包括空值) 都能立刻用上, 不依赖 IMPORTED_CONFIGURATIONS 的匹配逻辑。
+  list(GET _ITENSOR_CONFIGS 0 _ITENSOR_ONLY)
+  get_property(_ITENSOR_ONLY_LOC TARGET ITensor::itensor
+               PROPERTY "IMPORTED_LOCATION_${_ITENSOR_ONLY}")
+  set_property(TARGET ITensor::itensor PROPERTY
+               IMPORTED_LOCATION "${_ITENSOR_ONLY_LOC}")
+elseif(NOT "DEBUG" IN_LIST _ITENSOR_CONFIGS)
+  # 只编了 release: 让 Debug 构建回退到 release 库, 而不是直接报错
+  set_property(TARGET ITensor::itensor PROPERTY
+               MAP_IMPORTED_CONFIG_DEBUG "Release")
+endif()
+
+unset(_ITENSOR_CONFIGS)
+unset(_ITENSOR_NCONFIG)
+unset(_ITENSOR_ONLY)
+unset(_ITENSOR_ONLY_LOC)
+unset(_ITENSOR_LIB)
+unset(_ITENSOR_CFG)
+unset(_ITENSOR_CAND)

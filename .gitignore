@@ -5,6 +5,10 @@ itensor/config.h
 .DS_Store
 include/*
 *.swp
+# CMake 打包工程生成的产物 (见 CMakeLists.txt)
+build-cmake/
+lib/cmake/
+install/
 sample/dmrg
 sample/dmrg-g
 sample/mixedspin

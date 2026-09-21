@@ -48,5 +48,21 @@ clean:
 	@rm -f this_dir.mk
 	@rm -f itensor/config.h
 
+# 把编好的库 + 头文件导出成 CMake package, 之后的工程可以直接
+#     find_package(ITensor REQUIRED)
+#     target_link_libraries(app PRIVATE ITensor::itensor)
+# 只用 $(CURDIR) 而不是 $(PWD): make 的 $(PWD) 在 `make -C` 下不会被更新,
+# 会让 configure 把错误路径写进 this_dir.mk。
+cmake-package: build
+	@echo
+	@echo Exporting ITensor CMake package
+	@echo
+	cmake -S "$(CURDIR)" -B "$(CURDIR)/build-cmake"
+	@echo
+	@echo Done. Downstream projects can use:
+	@echo "    list(APPEND CMAKE_PREFIX_PATH \"$(CURDIR)\")"
+	@echo "    find_package(ITensor REQUIRED)"
+	@echo
+
 distclean: clean
 	@rm -f this_dir.mk options.mk
