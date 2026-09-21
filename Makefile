@@ -5,13 +5,21 @@
 
 include options.mk
 
+# 编 release 库 libitensor.a, 下游用到的就是它
 build: itensor 
 
 itensor: configure
 	@echo
-	@echo Building ITensor library
+	@echo Building ITensor release library
 	@echo
-	@cd itensor && $(MAKE)
+	@cd itensor && $(MAKE) build
+
+# 编 debug 库 libitensor-g.a, 平时不需要
+itensor-debug: configure
+	@echo
+	@echo Building ITensor debug library
+	@echo
+	@cd itensor && $(MAKE) debug
     
 
 configure:
@@ -44,7 +52,7 @@ clean:
 	@cd itensor && $(MAKE) clean
 	@cd sample && $(MAKE) clean
 	@cd unittest && $(MAKE) clean
-	@rm -f lib/*
+	@rm -rf lib/*
 	@rm -f this_dir.mk
 	@rm -f itensor/config.h
 

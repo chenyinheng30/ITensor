@@ -64,11 +64,13 @@ GOBJECTS= $(patsubst %.cc,.debug_objs/%.o, $(SOURCES))
 	$(eval COMMAND = $(CCCOM) -c $(CCFLAGS) -o $@ $<)
 	@$(COMMAND) || (echo "Failure while executing command: $(COMMAND)" && exit 1)
 
-.debug_objs/%.o: %.cc
+# mkdebugdir 是 order-only 依赖: 并行编译时要先建好目录, 但目录时间戳不触发重编
+.debug_objs/%.o: %.cc | mkdebugdir
 	@echo "Compiling itensor/$< in debug mode"
 	$(eval COMMAND = $(CCCOM) -c $(CCGFLAGS) -o $@ $<)
 	@$(COMMAND) || (echo "Failure while executing command: $(COMMAND)" && exit 1)
 
+# 同时产出 libitensor.a 与 libitensor-g.a
 install: build debug
 
 $(ITENSOR_LIBDIR)/libitensor.a: $(OBJECTS)
