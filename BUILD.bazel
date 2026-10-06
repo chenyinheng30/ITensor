@@ -1,0 +1,58 @@
+load(":itensor_cc.bzl", "itensor_cc_library")
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+
+package(default_visibility = ["//visibility:public"])
+
+string_flag(
+    name = "use_openmp",
+    build_setting_default = "off",
+    values = ["off", "on"],
+)
+
+config_setting(
+    name = "openmp_enabled",
+    flag_values = {":use_openmp": "on"},
+)
+
+genrule(
+    name = "config_h",
+    outs = ["itensor/config.h"],
+    cmd = "cat > $@ <<'EOF'\n" +
+          "#ifndef __ITENSOR_CONFIG_H\n" +
+          "#define __ITENSOR_CONFIG_H\n" +
+          "\n" +
+          "#ifndef PLATFORM_openblas\n" +
+          "#define PLATFORM_openblas\n" +
+          "#endif\n" +
+          "\n" +
+          "#ifndef __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES\n" +
+          "#define __ASSERT_MACROS_DEFINE_VERSIONS_WITHOUT_UNDERSCORES 0\n" +
+          "#endif\n" +
+          "\n" +
+          "#endif\n" +
+          "EOF",
+)
+
+filegroup(
+    name = "sample_headers",
+    srcs = ["sample/Heisenberg.h"],
+)
+
+_ITENSOR_HDRS = glob(
+    [
+        "itensor/**/*.h",
+        "itensor/**/*.hpp",
+    ],
+    exclude = ["itensor/config.h"],
+) + [":config_h"]
+
+itensor_cc_library(
+    name = "itensor",
+    hdrs = _ITENSOR_HDRS,
+)
+
+itensor_cc_library(
+    name = "itensor_debug",
+    hdrs = _ITENSOR_HDRS,
+    debug = True,
+)
