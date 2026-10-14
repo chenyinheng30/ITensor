@@ -222,9 +222,9 @@ add(PlusEQ const& P,
     Diag<T2>     const& D2)
     {
 #ifdef DEBUG
-    if(D1.length != D2.length) Error("Mismatched lengths in plusEq");
+    if(D1.length != D2.length) ITENSOR_ERROR("Mismatched lengths in plusEq");
 #endif
-    if(D1.allSame() || D2.allSame()) Error("Diag plusEq allSame case not implemented");
+    if(D1.allSame() || D2.allSame()) ITENSOR_ERROR("Diag plusEq allSame case not implemented");
 
     if(std::is_same<T1,T2>::value)
         {

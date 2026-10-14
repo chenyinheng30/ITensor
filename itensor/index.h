@@ -104,7 +104,7 @@ class Index
     Index(std::string s,
           long m)
         {
-        Error("Index(string,int) constructor deprecated, use Index(int,...) instead");
+        ITENSOR_ERROR("Index(string,int) constructor deprecated, use Index(int,...) instead");
         }
 
     template<typename... QN_Sizes>

@@ -29,7 +29,7 @@ putprimes(string s, int plev)
     { 
     stringstream str;
     str << s;
-    if(plev < 0) Error("Negative prime level");
+    if(plev < 0) ITENSOR_ERROR("Negative prime level");
     if(plev > 3)
         {
         str << "'" << plev;
@@ -107,7 +107,7 @@ setPrime(int plev)
     tags_.setPrime(plev);
 #ifdef DEBUG
     if(this->primeLevel() < 0)
-        Error("Negative primeLevel");
+        ITENSOR_ERROR("Negative primeLevel");
 #endif
     return *this;
     }
@@ -128,7 +128,7 @@ prime(int inc)
 #ifdef DEBUG
     if(this->primeLevel() < 0)
         {
-        Error("Negative primeLevel");
+        ITENSOR_ERROR("Negative primeLevel");
         }
 #endif
     return *this;
@@ -350,13 +350,13 @@ IndexVal(Index const& index_,
     val(val_)
     { 
 #ifdef DEBUG
-    if(!index) Error("IndexVal initialized with default initialized Index");
+    if(!index) ITENSOR_ERROR("IndexVal initialized with default initialized Index");
     //Can also use IndexVal's to indicate prime increments:
     //if(val_ < 1 || val_ > dim(index))
     //    {
     //    println("val = ",val_);
     //    println("index = ",index);
-    //    Error("val out of range");
+    //    ITENSOR_ERROR("val out of range");
     //    }
 #endif
     }
@@ -407,7 +407,7 @@ TagSet
 getTagSet(Args       const& args, 
           Args::Name const& name)
     {
-    if(!args.defined(name)) Error(tinyformat::format("Name %s not found in Args",name));
+    if(!args.defined(name)) ITENSOR_ERROR(tinyformat::format("Name %s not found in Args",name));
     return TagSet(args.getString(name));
     }
 
@@ -533,7 +533,7 @@ directSum(Index const& i,
   else
     {
 #ifdef DEBUG
-    if( dir(i) != dir(j) ) Error("In directSum(Index, Index), input indices must have same arrow direction");
+    if( dir(i) != dir(j) ) ITENSOR_ERROR("In directSum(Index, Index), input indices must have same arrow direction");
 #endif
     auto nblock_i = nblock(i);
     auto nblock_j = nblock(j);
@@ -543,7 +543,7 @@ directSum(Index const& i,
     for(auto jqn : range1(nblock_j))
         siq.emplace_back(qn(j,jqn),blocksize(j,jqn));
 #ifdef DEBUG
-    if(siq.empty()) Error("siq is empty in plussers");
+    if(siq.empty()) ITENSOR_ERROR("siq is empty in plussers");
 #endif
     return Index(std::move(siq),dir(i),tags);
     }
@@ -605,7 +605,7 @@ qn(long i) const
         {
         Print(nblock());
         Print(i);
-        Error("IQIndex::qn arg out of range");
+        ITENSOR_ERROR("IQIndex::qn arg out of range");
         }
 #endif
     return pd->qn(i);
@@ -623,7 +623,7 @@ blocksize(long i) const
         {
         Print(nblock());
         Print(i);
-        Error("Index::blocksize arg out of range");
+        ITENSOR_ERROR("Index::blocksize arg out of range");
         }
 #endif
     return pd->blocksize(i);
@@ -641,7 +641,7 @@ blocksize0(long i) const
         {
         Print(nblock());
         Print(i);
-        Error("Index::blocksize0 arg out of range");
+        ITENSOR_ERROR("Index::blocksize0 arg out of range");
         }
 #endif
     return pd->blocksize0(i);
@@ -693,10 +693,10 @@ QNblock(Index const& I,
         { 
         if(qn(I,n) == Q) return n;
         }
-    if(not hasQNs(I)) Error("Index does not contain any QN blocks");
+    if(not hasQNs(I)) ITENSOR_ERROR("Index does not contain any QN blocks");
     println("I = ",I);
     println("Q = ",Q);
-    Error("Index does not contain given QN block.");
+    ITENSOR_ERROR("Index does not contain given QN block.");
     return 0l;
     }
 
@@ -711,7 +711,7 @@ QNblockSize(Index const& I,
 void Index::
 write(std::ostream& s) const 
     { 
-    if(!bool(*this)) Error("Index::write: Index is default initialized");
+    if(!bool(*this)) ITENSOR_ERROR("Index::write: Index is default initialized");
     itensor::write(s,tags_);
     itensor::write(s,id_);
     itensor::write(s,dim_);
@@ -743,7 +743,7 @@ read(std::istream& s)
         pd = std::make_shared<IQIndexDat>(std::move(dat.store()));
 
 #ifdef DEBUG
-    if(tags_.primeLevel() < 0) Error("Negative primeLevel");
+    if(tags_.primeLevel() < 0) ITENSOR_ERROR("Negative primeLevel");
 #endif
 
     return *this;
@@ -804,7 +804,7 @@ h5_read(h5::group parent, std::string const& name, Index & I)
     {
     auto g = parent.open_group(name);
     auto type = h5_read_attribute<string>(g,"type");
-    if(type != "Index") Error("Group does not contain Index data in HDF5 file");
+    if(type != "Index") ITENSOR_ERROR("Group does not contain Index data in HDF5 file");
     auto id = h5_read<unsigned long>(g,"id");
     auto dim = h5_read<long>(g,"dim");
     auto dir = h5_read<long>(g,"dir");

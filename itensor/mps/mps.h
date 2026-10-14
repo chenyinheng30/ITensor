@@ -128,7 +128,7 @@ class MPS
     setTags(TagSet const& ts, IndexSet const& is)
         {
         if(do_write_)
-            Error("setTags not supported if doWrite(true)");
+            ITENSOR_ERROR("setTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].setTags(ts,is);
         return *this;
@@ -139,7 +139,7 @@ class MPS
     setTags(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("setTags not supported if doWrite(true)");
+            ITENSOR_ERROR("setTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].setTags(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -149,7 +149,7 @@ class MPS
     noTags(IndexSet const& is)
         {
         if(do_write_)
-            Error("noTags not supported if doWrite(true)");
+            ITENSOR_ERROR("noTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].noTags(is);
         return *this;
@@ -160,7 +160,7 @@ class MPS
     noTags(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("noTags not supported if doWrite(true)");
+            ITENSOR_ERROR("noTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].noTags(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -170,7 +170,7 @@ class MPS
     addTags(TagSet const& ts, IndexSet const& is)
         {
         if(do_write_)
-            Error("addTags not supported if doWrite(true)");
+            ITENSOR_ERROR("addTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].addTags(ts,is);
         return *this;
@@ -181,7 +181,7 @@ class MPS
     addTags(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("addTags not supported if doWrite(true)");
+            ITENSOR_ERROR("addTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].addTags(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -191,7 +191,7 @@ class MPS
     removeTags(TagSet const& ts, IndexSet const& is)
         {
         if(do_write_)
-            Error("removeTags not supported if doWrite(true)");
+            ITENSOR_ERROR("removeTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].removeTags(ts,is);
         return *this;
@@ -202,7 +202,7 @@ class MPS
     removeTags(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("removeTags not supported if doWrite(true)");
+            ITENSOR_ERROR("removeTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].removeTags(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -212,7 +212,7 @@ class MPS
     replaceTags(TagSet const& ts1, TagSet const& ts2, IndexSet const& is)
         {
         if(do_write_)
-            Error("replaceTags not supported if doWrite(true)");
+            ITENSOR_ERROR("replaceTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].replaceTags(ts1,ts2,is);
         return *this;
@@ -223,7 +223,7 @@ class MPS
     replaceTags(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("replaceTags not supported if doWrite(true)");
+            ITENSOR_ERROR("replaceTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].replaceTags(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -233,7 +233,7 @@ class MPS
     swapTags(TagSet const& ts1, TagSet const& ts2, IndexSet const& is)
         {
         if(do_write_)
-            Error("swapTags not supported if doWrite(true)");
+            ITENSOR_ERROR("swapTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].swapTags(ts1,ts2,is);
         return *this;
@@ -244,7 +244,7 @@ class MPS
     swapTags(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("swapTags not supported if doWrite(true)");
+            ITENSOR_ERROR("swapTags not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].swapTags(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -254,7 +254,7 @@ class MPS
     prime(int plev, IndexSet const& is)
         {
         if(do_write_)
-            Error("prime not supported if doWrite(true)");
+            ITENSOR_ERROR("prime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].prime(plev,is);
         return *this;
@@ -264,7 +264,7 @@ class MPS
     prime(IndexSet const& is)
         {
         if(do_write_)
-            Error("prime not supported if doWrite(true)");
+            ITENSOR_ERROR("prime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].prime(is);
         return *this;
@@ -275,7 +275,7 @@ class MPS
     prime(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("prime not supported if doWrite(true)");
+            ITENSOR_ERROR("prime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].prime(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -285,7 +285,7 @@ class MPS
     setPrime(int plev, IndexSet const& is)
         {
         if(do_write_)
-            Error("setPrime not supported if doWrite(true)");
+            ITENSOR_ERROR("setPrime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].setPrime(plev,is);
         return *this;
@@ -296,7 +296,7 @@ class MPS
     setPrime(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("setPrime not supported if doWrite(true)");
+            ITENSOR_ERROR("setPrime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].setPrime(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -306,7 +306,7 @@ class MPS
     mapPrime(int plevold, int plevnew, IndexSet const& is)
         {
         if(do_write_)
-            Error("mapPrime not supported if doWrite(true)");
+            ITENSOR_ERROR("mapPrime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].mapPrime(plevold,plevnew,is);
         return *this;
@@ -317,7 +317,7 @@ class MPS
     mapPrime(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("mapPrime not supported if doWrite(true)");
+            ITENSOR_ERROR("mapPrime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].mapPrime(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -327,7 +327,7 @@ class MPS
     swapPrime(int plevold, int plevnew, IndexSet const& is)
         {
         if(do_write_)
-            Error("swapPrime not supported if doWrite(true)");
+            ITENSOR_ERROR("swapPrime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].swapPrime(plevold,plevnew,is);
         return *this;
@@ -338,7 +338,7 @@ class MPS
     swapPrime(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("swapPrime not supported if doWrite(true)");
+            ITENSOR_ERROR("swapPrime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].swapPrime(std::forward<VarArgs>(vargs)...);
         return *this;
@@ -348,7 +348,7 @@ class MPS
     noPrime(IndexSet const& is)
         {
         if(do_write_)
-            Error("noPrime not supported if doWrite(true)");
+            ITENSOR_ERROR("noPrime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].noPrime(is);
         return *this;
@@ -359,7 +359,7 @@ class MPS
     noPrime(VarArgs&&... vargs)
         {
         if(do_write_)
-            Error("noPrime not supported if doWrite(true)");
+            ITENSOR_ERROR("noPrime not supported if doWrite(true)");
         for(int i = 1; i <= N_; ++i)
             A_[i].noPrime(std::forward<VarArgs>(vargs)...);
         return *this;

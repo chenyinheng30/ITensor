@@ -102,7 +102,7 @@ class LocalOp
     void
     numCenter(int val)
         {
-        if(val < 0 || val > 2) Error("numCenter must be set to be 0 or 1 or 2");
+        if(val < 0 || val > 2) ITENSOR_ERROR("numCenter must be set to be 0 or 1 or 2");
         nc_ = val;
         }
 
@@ -134,28 +134,28 @@ class LocalOp
     ITensor const&
     Op1() const 
         { 
-        if(!(*this)) Error("LocalOp is default constructed");
+        if(!(*this)) ITENSOR_ERROR("LocalOp is default constructed");
         return *Op1_;
         }
 
     ITensor const&
     Op2() const 
         { 
-        if(!(*this)) Error("LocalOp is default constructed");
+        if(!(*this)) ITENSOR_ERROR("LocalOp is default constructed");
         return *Op2_;
         }
 
     ITensor const&
     L() const 
         { 
-        if(!(*this)) Error("LocalOp is default constructed");
+        if(!(*this)) ITENSOR_ERROR("LocalOp is default constructed");
         return *L_;
         }
 
     ITensor const&
     R() const 
         { 
-        if(!(*this)) Error("LocalOp is default constructed");
+        if(!(*this)) ITENSOR_ERROR("LocalOp is default constructed");
         return *R_;
         }
 
@@ -198,7 +198,7 @@ LocalOp(const ITensor& Op1,
     if(nc_ == 1)	
       updateOp(Op1);
     else
-      Error("In LocalOp(ITensor), NumCenter cannot be set other than 1");
+      ITENSOR_ERROR("In LocalOp(ITensor), NumCenter cannot be set other than 1");
     }
 
 inline LocalOp::
@@ -217,7 +217,7 @@ LocalOp(const ITensor& Op1, const ITensor& Op2,
     else if(nc_ == 0)
       update(Op1,Op2);// L, R
     else
-      Error("In LocalOp(ITensor,ITensor), NumCenter cannot be set other than 2 or 0");
+      ITENSOR_ERROR("In LocalOp(ITensor,ITensor), NumCenter cannot be set other than 2 or 0");
     }
 
 inline LocalOp::
@@ -235,7 +235,7 @@ LocalOp(const ITensor& Op1,
     if(nc_ == 1)
       update(Op1,L,R);
     else
-      Error("In LocalOp(ITensor,ITensor,ITensor), NumCenter cannot be set other than 1");
+      ITENSOR_ERROR("In LocalOp(ITensor,ITensor,ITensor), NumCenter cannot be set other than 1");
     }
 
 inline LocalOp::
@@ -253,7 +253,7 @@ LocalOp(const ITensor& Op1, const ITensor& Op2,
     if(nc_ == 2)
       update(Op1,Op2,L,R);
     else
-      Error("In LocalOp(ITensor,ITensor,ITensor,ITensor), NumCenter cannot be set other than 2");
+      ITENSOR_ERROR("In LocalOp(ITensor,ITensor,ITensor,ITensor), NumCenter cannot be set other than 2");
     }
 
 void inline LocalOp::
@@ -325,7 +325,7 @@ void inline LocalOp::
 product(ITensor const& phi, 
         ITensor      & phip) const
     {
-    if(!(*this)) Error("LocalOp is null");
+    if(!(*this)) ITENSOR_ERROR("LocalOp is null");
 
     if(LIsNull())
         {
@@ -379,7 +379,7 @@ deltaRho(ITensor const& AA,
     {
     if(nc_ != 2)
         {
-        Error("LocalMPO: currently only support 2 center sites in deltaRho");
+        ITENSOR_ERROR("LocalMPO: currently only support 2 center sites in deltaRho");
         }
 
     auto drho = AA;
@@ -408,7 +408,7 @@ deltaRho(ITensor const& AA,
 ITensor inline LocalOp::
 diag() const
     {
-    if(!(*this)) Error("LocalOp is default constructed");
+    if(!(*this)) ITENSOR_ERROR("LocalOp is default constructed");
 
     //lambda helper function:
     auto findIndPair = [](ITensor const& T) {
@@ -488,7 +488,7 @@ diag() const
 size_t inline LocalOp::
 size() const
     {
-    if(!(*this)) Error("LocalOp is default constructed");
+    if(!(*this)) ITENSOR_ERROR("LocalOp is default constructed");
     if(size_ == size_t(-1))
         {
         //Calculate linear size of this 

@@ -39,7 +39,7 @@ nmultMPO(MPO const& Aorig,
     if(!args.defined("Cutoff")) args.add("Cutoff",1E-14);
     if(!args.defined("RespectDegenerate")) args.add("RespectDegenerate",true);
 
-    if(length(Aorig) != length(Borig)) Error("nmultMPO(MPO): Mismatched MPO length");
+    if(length(Aorig) != length(Borig)) ITENSOR_ERROR("nmultMPO(MPO): Mismatched MPO length");
     const int N = length(Borig);
 
     auto A = Aorig;
@@ -129,8 +129,8 @@ applyMPO(MPO const& K,
          MPS const& x,
          Args args)
     {
-    if( !x ) Error("Error in applyMPO, MPS is uninitialized.");
-    if( !K ) Error("Error in applyMPO, MPO is uninitialized.");
+    if( !x ) ITENSOR_ERROR("Error in applyMPO, MPS is uninitialized.");
+    if( !K ) ITENSOR_ERROR("Error in applyMPO, MPO is uninitialized.");
 
     auto method = args.getString("Method","DensityMatrix");
     if(!args.defined("RespectDegenerate")) args.add("RespectDegenerate",true);
@@ -153,7 +153,7 @@ applyMPO(MPO const& K,
         }
     else
         {
-        Error("applyMPO currently supports the following methods: 'DensityMatrix', 'Fit'");
+        ITENSOR_ERROR("applyMPO currently supports the following methods: 'DensityMatrix', 'Fit'");
         }
 
     return res;
@@ -166,20 +166,20 @@ applyMPO(MPO const& K,
          MPS const& x0,
          Args args)
     {
-    if( !x ) Error("Error in applyMPO, MPS is uninitialized.");
-    if( !K ) Error("Error in applyMPO, MPO is uninitialized.");
-    if( !x0 ) Error("Error in applyMPO, guess MPS is uninitialized.");
+    if( !x ) ITENSOR_ERROR("Error in applyMPO, MPS is uninitialized.");
+    if( !K ) ITENSOR_ERROR("Error in applyMPO, MPO is uninitialized.");
+    if( !x0 ) ITENSOR_ERROR("Error in applyMPO, guess MPS is uninitialized.");
 
     auto method = args.getString("Method","Fit");
     if(!args.defined("RespectDegenerate")) args.add("RespectDegenerate",true);
 
     MPS res = x0;
     if(method == "DensityMatrix")
-        Error("applyMPO method 'DensityMatrix' does not accept an input MPS");
+        ITENSOR_ERROR("applyMPO method 'DensityMatrix' does not accept an input MPS");
     else if(method == "Fit")
         fitApplyMPOImpl(x,K,res,args);
     else
-        Error("applyMPO currently supports the following methods: 'DensityMatrix', 'Fit'");
+        ITENSOR_ERROR("applyMPO currently supports the following methods: 'DensityMatrix', 'Fit'");
 
     return res;
     }
@@ -223,7 +223,7 @@ densityMatrixApplyMPOImpl(MPO const& K,
     for( auto n : range1(N) )
       {
       if( commonIndex(psi(n),K(n)) != siteIndex(psi,n) )
-          Error("MPS and MPO have different site indices in applyMPO method 'DensityMatrix'");
+          ITENSOR_ERROR("MPS and MPO have different site indices in applyMPO method 'DensityMatrix'");
       }
 
     auto rand_plev = 14741;
@@ -334,7 +334,7 @@ oneSiteFitApply(vector<ITensor> & E,
         if(order(P) > 3)
             {
             Print(P);
-            Error("order > 3 of P");
+            ITENSOR_ERROR("order > 3 of P");
             }
 
         P *= fac;
@@ -347,7 +347,7 @@ oneSiteFitApply(vector<ITensor> & E,
                 {
                 Print(ci);
                 Print(inds(P));
-                Error("P does not have Index ci");
+                ITENSOR_ERROR("P does not have Index ci");
                 }
             auto [U,S,V] = svd(P,{ci},args);
             (void)U;
@@ -455,7 +455,7 @@ fitApplyMPOImpl(Real fac,
             }
         else
             {
-            Error(tinyformat::format("NCenterSites = %d not supported",NCenterSites));
+            ITENSOR_ERROR(tinyformat::format("NCenterSites = %d not supported",NCenterSites));
             }
         }
     Kx.dag();
@@ -506,7 +506,7 @@ applyExpH(MPS const& psi,
           MPS& res, 
           Args const& args)
     {
-    if(&psi == &res) Error("Must pass distinct MPS arguments to applyExpH");
+    if(&psi == &res) ITENSOR_ERROR("Must pass distinct MPS arguments to applyExpH");
 
     const int order = args.getInt("Order",10);
 
@@ -630,17 +630,17 @@ applyExpH(MPS const& psi,
 //    bool allow_arb_position = args.getBool("AllowArbPosition",false);
 //
 //    if(&psi == &res)
-//        Error("psi and res must be different MPS instances");
+//        ITENSOR_ERROR("psi and res must be different MPS instances");
 //
 //    auto N = length(psi);
 //    if(length(K) != N) 
-//        Error("Mismatched N in ApplyMPO() ZipUp method");
+//        ITENSOR_ERROR("Mismatched N in ApplyMPO() ZipUp method");
 //
 //    if(!itensor::isOrtho(psi) || itensor::orthoCenter(psi) != 1)
-//        Error("Ortho center of psi must be site 1");
+//        ITENSOR_ERROR("Ortho center of psi must be site 1");
 //
 //    if(!allow_arb_position && (!itensor::isOrtho(K) || itensor::orthoCenter(K) != 1))
-//        Error("Ortho center of K must be site 1");
+//        ITENSOR_ERROR("Ortho center of K must be site 1");
 //
 //#ifdef DEBUG
 //    checkQNs(psi);
@@ -718,7 +718,7 @@ applyExpH(MPS const& psi,
 //    {
 //    if(&psiA == &res || &psiB == &res)
 //        {
-//        Error("fitApplyMPOImpl: Result MPS cannot be same as an input MPS");
+//        ITENSOR_ERROR("fitApplyMPOImpl: Result MPS cannot be same as an input MPS");
 //        }
 //    auto N = length(psiA);
 //    auto nsweep = args.getInt("Nsweep",1);

@@ -280,7 +280,7 @@ num(QNName name) const
         {
         if(v.name() == name) return v;
         }
-    Error("QNum with given name not found");
+    ITENSOR_ERROR("QNum with given name not found");
     return QNum();
     }
 

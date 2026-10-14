@@ -91,7 +91,7 @@ isFermionic(SiteTerm const& st)
     if(c == '*')
         {
         Print(st.op);
-        Error("SiteTerm contains a '*' but isFermionic does not handle this case");
+        ITENSOR_ERROR("SiteTerm contains a '*' but isFermionic does not handle this case");
         }
 #endif
     if(!st.op.empty() && st.op.front() == 'C') return true;
@@ -142,13 +142,13 @@ void
 rewriteFermionic(SiteTermProd & prod, 
                  bool isleftFermionic)
     {
-    if(prod.empty()) Error("Empty product in rewriteFermionic is not expected.");    
+    if(prod.empty()) ITENSOR_ERROR("Empty product in rewriteFermionic is not expected.");    
     
     int i = prod.front().i;
     for(auto& st : prod)
         if(st.i != i)
             {
-            Error("Multi-site product in rewriteFermionic is not expected.");    
+            ITENSOR_ERROR("Multi-site product in rewriteFermionic is not expected.");    
             }
 
     // Rewrite a fermionic single site product using the Jordan-Wigner string            
@@ -174,7 +174,7 @@ computeProd(SiteSet const& sites,
     ITensor op = sites.op(p.front().op,i);
     for(auto it = p.begin()+1; it != p.end(); ++it)
         {
-        if(it->i != i) Error("Op on wrong site");
+        if(it->i != i) ITENSOR_ERROR("Op on wrong site");
         ITensor t = sites.op(it->op,i);
         op = multSiteOps(op,t);
         }
@@ -208,7 +208,7 @@ add(string const& op,
 HTerm& HTerm::
 operator*=(Real x)
     {
-    if(Nops() == 0) Error("No operators in HTerm");
+    if(Nops() == 0) ITENSOR_ERROR("No operators in HTerm");
     coef *= x;
     return *this;
     }
@@ -216,7 +216,7 @@ operator*=(Real x)
 HTerm& HTerm::
 operator*=(Complex x)
     {
-    if(Nops() == 0) Error("No operators in HTerm");
+    if(Nops() == 0) ITENSOR_ERROR("No operators in HTerm");
     coef *= x;
     return *this;
     }
@@ -304,7 +304,7 @@ Accumulator(AutoMPO* pa_,
 AutoMPO::Accumulator::
 ~Accumulator()
     {
-    if(state==Op) Error("Invalid input to AutoMPO (missing site number?)");
+    if(state==Op) ITENSOR_ERROR("Invalid input to AutoMPO (missing site number?)");
     term *= coef;
     pa->add(term);
     }
@@ -350,7 +350,7 @@ operator,(const char* op_)
         }
     else
         {
-        Error("Invalid input to AutoMPO (two strings in a row?)");
+        ITENSOR_ERROR("Invalid input to AutoMPO (two strings in a row?)");
         }
     return *this;
     }
@@ -365,7 +365,7 @@ operator,(const string& op_)
         }
     else
         {
-        Error("Invalid input to AutoMPO (two strings in a row?)");
+        ITENSOR_ERROR("Invalid input to AutoMPO (two strings in a row?)");
         }
     return *this;
     }
@@ -559,7 +559,7 @@ toMPOImpl(AutoMPO const& am,
     for(auto& t : am.terms())
     if(t.Nops() > 2) 
         {
-        Error("Only at most 2-operator terms allowed for exact AutoMPO conversion to MPO");
+        ITENSOR_ERROR("Only at most 2-operator terms allowed for exact AutoMPO conversion to MPO");
         }
 
     //Special SiteTerm objects indicating either
@@ -1198,7 +1198,7 @@ compressMPO(SiteSet const& sites,
         {
         //printfln("=== Making compressed MPO at site %d ===",n);
         //Put in factor of (-tau) if isExpH==true
-        if(isExpH) Error("Need to put in factor of (-tau)");
+        if(isExpH) ITENSOR_ERROR("Need to put in factor of (-tau)");
 
         auto V_npp = map<QN, Mat<T>>();
 
@@ -1473,7 +1473,7 @@ svdMPO(AutoMPO const& am,
 //            {
 //            if(isComplex(H(n)))
 //                {
-//                Error("Complex tensor produced from real AutoMPO terms");
+//                ITENSOR_ERROR("Complex tensor produced from real AutoMPO terms");
 //                }
 //            }
 //        }
@@ -1513,7 +1513,7 @@ toExpH_ZW1(AutoMPO const& am,
     for(auto& t : am.terms())
     if(t.Nops() > 2) 
         {
-        Error("Only at most 2-operator terms allowed for AutoMPO conversion to MPO/IQMPO");
+        ITENSOR_ERROR("Only at most 2-operator terms allowed for AutoMPO conversion to MPO/IQMPO");
         }
 
     //Special SiteTerm objects indicating either
@@ -1696,7 +1696,7 @@ toExpH(AutoMPO const& a,
         }
     else
         {
-        Error(tinyformat::format("Unknown approximation Approx=\"%s\"",approx));
+        ITENSOR_ERROR(tinyformat::format("Unknown approximation Approx=\"%s\"",approx));
         }
     return res;
     }

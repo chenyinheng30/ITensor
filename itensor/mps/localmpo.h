@@ -176,7 +176,7 @@ class LocalMPO
     H() const 
         { 
         if(Op_ == 0)
-            Error("LocalMPO is null or contains an MPS");
+            ITENSOR_ERROR("LocalMPO is null or contains an MPS");
         return *Op_;
         }
 
@@ -185,7 +185,7 @@ class LocalMPO
     void
     numCenter(int val) 
         { 
-        if(val < 0 || val > 2) Error("numCenter must be set 0 or 1 or 2");
+        if(val < 0 || val > 2) ITENSOR_ERROR("numCenter must be set 0 or 1 or 2");
         nc_ = val; 
 		lop_.numCenter(val);
         }
@@ -201,7 +201,7 @@ class LocalMPO
     doWrite(bool val,
             Args const& args = Args::global()) 
         { 
-        if(Psi_ != 0) Error("Write to disk not yet supported for LocalMPO initialized with an MPS");
+        if(Psi_ != 0) ITENSOR_ERROR("Write to disk not yet supported for LocalMPO initialized with an MPS");
         if(!do_write_ && (val == true))
             {
             initWrite(args); 
@@ -405,7 +405,7 @@ product(ITensor const& phi,
             {
             if(!L())
                 {
-                if(!R()) Error("LocalMPO: Empty L() and R() in function product");
+                if(!R()) ITENSOR_ERROR("LocalMPO: Empty L() and R() in function product");
                 else othr = R();
                 }
             else
@@ -422,7 +422,7 @@ product(ITensor const& phi,
         }
     else
         {
-        Error("LocalMPO is null");
+        ITENSOR_ERROR("LocalMPO is null");
         }
     }
 
@@ -443,7 +443,7 @@ R(int j, ITensor const& nR)
 inline void LocalMPO::
 position(int b, MPS const& psi)
     {
-    if(!(*this)) Error("LocalMPO is null");
+    if(!(*this)) ITENSOR_ERROR("LocalMPO is null");
 
     makeL(psi,b-1);
     makeR(psi,b+nc_);
@@ -454,7 +454,7 @@ position(int b, MPS const& psi)
 #ifdef DEBUG
     if(nc_ != 2 && nc_ != 1 && nc_ != 0)
         {
-        Error("LocalOp only supports 0 and 1 and 2 center sites currently");
+        ITENSOR_ERROR("LocalOp only supports 0 and 1 and 2 center sites currently");
         }
 #endif
 
@@ -484,12 +484,12 @@ shift(int j,
       Direction dir, 
       ITensor const& A)
     {
-    if(!(*this)) Error("LocalMPO is null");
+    if(!(*this)) ITENSOR_ERROR("LocalMPO is null");
 
 #ifdef DEBUG
     if(nc_ != 2 && nc_ != 1 && nc_ != 0)
         {
-        Error("LocalOp only supports 0 and 1 and 2 center sites currently");
+        ITENSOR_ERROR("LocalOp only supports 0 and 1 and 2 center sites currently");
         }
 #endif
 
@@ -498,7 +498,7 @@ shift(int j,
         if((j-1) != LHlim_)
             {
             std::cout << "j-1 = " << (j-1) << ", LHlim = " << LHlim_ << std::endl;
-            Error("Can only shift at LHlim");
+            ITENSOR_ERROR("Can only shift at LHlim");
             }
         auto& E = PH_.at(LHlim_);
         auto& nE = PH_.at(j);
@@ -520,7 +520,7 @@ shift(int j,
         if((j+1) != LHlim_)
             {
             std::cout << "j+1 = " << (j+1) << ", RHlim_ = " << RHlim_ << std::endl;
-            Error("Can only shift at RHlim_");
+            ITENSOR_ERROR("Can only shift at RHlim_");
             }
         auto& E = PH_.at(RHlim_);
         auto& nE = PH_.at(j);

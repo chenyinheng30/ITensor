@@ -170,18 +170,18 @@ class VarArray
         if(i >= size_) 
             {
             std::cout << "index " << i << " out of range in VarArray, size=" << size_ << std::endl;
-            Error("index out of range in VarArray");
+            ITENSOR_ERROR("index out of range in VarArray");
             }
         }
     void
     check_size() const
         {
-        if(size_ > MaxSize) Error("VarArray overflow, increase MaxSize");
+        if(size_ > MaxSize) ITENSOR_ERROR("VarArray overflow, increase MaxSize");
         }
     void
     check_empty() const
         {
-        if(size_==0) Error("VarArray is empty");
+        if(size_==0) ITENSOR_ERROR("VarArray is empty");
         }
     };
 

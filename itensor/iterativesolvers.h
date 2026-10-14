@@ -110,7 +110,7 @@ davidson(BigMatrixT const& A,
     Real Approx0 = 1E-12;
 
     auto nget = phi.size();
-    if(nget == 0) Error("No initial vectors passed to davidson.");
+    if(nget == 0) ITENSOR_ERROR("No initial vectors passed to davidson.");
     for(auto j : range(nget))
         {
         auto nrm = norm(phi[j]);
@@ -134,7 +134,7 @@ davidson(BigMatrixT const& A,
         {
         println("dim(inds(phi.front())) = ",dim(inds(phi.front())));
         println("A.size() = ",A.size());
-        Error("davidson: size of initial vector should match linear matrix size");
+        ITENSOR_ERROR("davidson: size of initial vector should match linear matrix size");
         }
 
     auto V = std::vector<ITensor>(actual_maxiter+2);
@@ -373,7 +373,7 @@ TIMER_STOP(31);
             if(std::fabs(norm(q)-1.0) > 1E-10)
                 {
                 println("norm(q) = ",norm(q));
-                Error("q not normalized after Gram Schmidt.");
+                ITENSOR_ERROR("q not normalized after Gram Schmidt.");
                 }
             }
 
@@ -729,15 +729,15 @@ arnoldi(const BigMatrixT& A,
     const int Npass = args.getInt("Npass",2); // number of Gram-Schmidt passes
 
     const size_t nget = phi.size();
-    if(nget == 0) Error("No initial vectors passed to arnoldi.");
+    if(nget == 0) ITENSOR_ERROR("No initial vectors passed to arnoldi.");
 
-    //if(nget > 1) Error("arnoldi currently only supports nget == 1");
+    //if(nget > 1) ITENSOR_ERROR("arnoldi currently only supports nget == 1");
 
     for(size_t j = 0; j < nget; ++j)
         {
         const Real nrm = norm(phi[j]);
         if(nrm == 0.0)
-            Error("norm of 0 in arnoldi");
+            ITENSOR_ERROR("norm of 0 in arnoldi");
         phi[j] *= 1.0/nrm;
         }
 
@@ -746,7 +746,7 @@ arnoldi(const BigMatrixT& A,
     const int maxsize = A.size();
 
     if(phi.size() > size_t(maxsize))
-        Error("arnoldi: requested more eigenvectors (phi.size()) than size of matrix (A.size())");
+        ITENSOR_ERROR("arnoldi: requested more eigenvectors (phi.size()) than size of matrix (A.size())");
 
     if(maxsize == 1)
         {
@@ -768,7 +768,7 @@ arnoldi(const BigMatrixT& A,
 
     if(dim(phi.front().inds()) != size_t(maxsize))
         {
-        Error("arnoldi: size of initial vector should match linear matrix size");
+        ITENSOR_ERROR("arnoldi: size of initial vector should match linear matrix size");
         }
 
     //Storage for Matrix that gets diagonalized 

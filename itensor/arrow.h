@@ -65,7 +65,7 @@ operator-(Arrow dir)
     {
 #ifdef DEBUG
     if(dir == Neither)
-        Error("Cannot reverse Arrow direction 'Neither'");
+        ITENSOR_ERROR("Cannot reverse Arrow direction 'Neither'");
 #endif
     return (dir == In ? Out : In);
     }
@@ -85,7 +85,7 @@ operator<<(std::ostream& s, Arrow D)
             s << "Neither";
             return s;
         default:
-            Error("Missing Arrow case");
+            ITENSOR_ERROR("Missing Arrow case");
         }
     return s; 
     }
