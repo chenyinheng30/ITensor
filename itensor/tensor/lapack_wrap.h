@@ -45,6 +45,7 @@ namespace itensor {
 #elif defined PLATFORM_openblas
 
 #define ITENSOR_USE_CBLAS
+#define ITENSOR_USE_ZGEMM
 
 #include "cblas.h"
 #include "lapacke.h"
@@ -399,6 +400,19 @@ void F77NAME(zheev)(char *jobz, char *uplo, LAPACK_INT *n, LAPACK_COMPLEX *a, LA
 void F77NAME(zheev)(char *jobz, char *uplo, LAPACK_INT *n, LAPACK_COMPLEX *a, LAPACK_INT *lda, 
            double *w, LAPACK_COMPLEX *work, LAPACK_INT *lwork, double *rwork, 
            LAPACK_INT *info);
+#endif
+
+#ifndef PLATFORM_lapacke
+#ifdef PLATFORM_acml
+void F77NAME(zheevd)(char *jobz, char *uplo, LAPACK_INT *n, LAPACK_COMPLEX *a, LAPACK_INT *lda, 
+            double *w, LAPACK_COMPLEX *work, LAPACK_INT *lwork, double *rwork, LAPACK_INT *lrwork,
+            LAPACK_INT *iwork, LAPACK_INT *liwork, LAPACK_INT *info, 
+            LAPACK_INT jobz_len, LAPACK_INT uplo_len);
+#else
+void F77NAME(zheevd)(char *jobz, char *uplo, LAPACK_INT *n, LAPACK_COMPLEX *a, LAPACK_INT *lda, 
+           double *w, LAPACK_COMPLEX *work, LAPACK_INT *lwork, double *rwork, LAPACK_INT *lrwork,
+           LAPACK_INT *iwork, LAPACK_INT *liwork, LAPACK_INT *info);
+#endif
 #endif
 
 

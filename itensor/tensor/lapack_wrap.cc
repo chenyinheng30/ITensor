@@ -15,6 +15,9 @@
 //
 #include "itensor/tensor/lapack_wrap.h"
 //#include "itensor/tensor/permutecplx.h"
+#include <cstdio>
+#include <set>
+#include <mutex>
 
 namespace itensor {
 
@@ -687,18 +690,23 @@ zheev_wrapper(LAPACK_INT      N,  //number of cols of A
     std::vector<LAPACK_REAL> work(N);
     LAPACKE_zheev(LAPACK_COL_MAJOR,jobz,uplo,N,A,N,w.data());
 #else
-    LAPACK_INT lwork = std::max(one,3*N-1);//max(1, 1+6*N+2*N*N);
-    std::vector<LAPACK_COMPLEX> work(lwork);
-    std::vector<LAPACK_REAL> rwork(lwork);
+    LAPACK_INT lwork = LAPACK_INT(static_cast<long long>(N)*N + 65ll*N + 4162ll);
+    std::vector<LAPACK_COMPLEX> work(std::max(one,lwork));
+    LAPACK_INT lrwork = std::max(one,1+5*N+2*N*N);
+    std::vector<LAPACK_REAL> rwork(lrwork);
+    LAPACK_INT liwork = std::max(one,3+5*N);
+    std::vector<LAPACK_INT> iwork(liwork);
     LAPACK_INT info = 0;
     static_assert(sizeof(LAPACK_COMPLEX)==sizeof(Cplx),"LAPACK_COMPLEX and itensor::Cplx have different size");
     auto pA = reinterpret_cast<LAPACK_COMPLEX*>(A);
 #ifdef PLATFORM_acml
     LAPACK_INT jobz_len = 1;
     LAPACK_INT uplo_len = 1;
-    F77NAME(zheev)(&jobz,&uplo,&N,pA,&N,d,work.data(),&lwork,rwork.data(),&info,jobz_len,uplo_len);
+    F77NAME(zheevd)(&jobz,&uplo,&N,pA,&N,d,work.data(),&lwork,rwork.data(),&lrwork,
+                    iwork.data(),&liwork,&info,jobz_len,uplo_len);
 #else
-    F77NAME(zheev)(&jobz,&uplo,&N,pA,&N,d,work.data(),&lwork,rwork.data(),&info);
+    F77NAME(zheevd)(&jobz,&uplo,&N,pA,&N,d,work.data(),&lwork,rwork.data(),&lrwork,
+                    iwork.data(),&liwork,&info);
 #endif
 
 #endif //PLATFORM_lapacke
